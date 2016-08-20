@@ -4,6 +4,8 @@
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QDate>
 
+#include <qfile>
+
 class StockPrice : public QObject
 {
     Q_OBJECT
@@ -62,14 +64,21 @@ class StockModel : public QAbstractListModel
     Q_PROPERTY(QDate startDate READ startDate WRITE setStartDate NOTIFY startDateChanged)
     Q_PROPERTY(QDate endDate READ endDate WRITE setEndDate NOTIFY endDateChanged)
     Q_PROPERTY(StockDataCycle dataCycle READ dataCycle WRITE setDataCycle NOTIFY dataCycleChanged)
+    Q_PROPERTY(StockDataBase dataBaseType READ dataBaseType WRITE setDataBaseType NOTIFY dataBaseTypeChanged)
 
     Q_ENUMS(StockDataCycle)
+    Q_ENUMS(StockDataBase)
 public:
     enum StockDataCycle {
         Daily,
         Weekly,
         Monthly,
         Dividend
+    };
+
+    enum StockDataBase {
+        LocalCSV,
+        WebCSV
     };
 
     enum StockModelRoles {
@@ -82,6 +91,8 @@ public:
         VolumeRole,
         AdjustedPriceRole
     };
+
+    const int NUM_OF_ATTRIBUTES = 7;
 
     StockModel(QObject *parent = 0);
 
@@ -97,6 +108,11 @@ public:
     StockDataCycle dataCycle() const;
     void setDataCycle(StockDataCycle cycle);
 
+    StockDataBase dataBaseType () const;
+    void setDataBaseType(StockDataBase dataBase);
+
+    void setFileName(QString file);
+
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
@@ -110,6 +126,7 @@ signals:
     void startDateChanged();
     void endDateChanged();
     void dataCycleChanged();
+    void dataBaseTypeChanged();
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 
 public slots:
@@ -120,13 +137,28 @@ private slots:
     void update(QNetworkReply* reply);
 private:
     QString dataCycleString() const;
+    void SetupFormatFile(QString header);
+    void SetupFormatFile();
+    void updatePrices(QIODevice *inData);
+    StockPrice *decodeEntryStock(QStringList &line);
+
+    QFile *inFile;
+    QString fileName;
+
+
     QList<StockPrice*> _prices;
+    QVector<int> attributesPosition;
     QString _stockName;
     QDate _startDate;
     QDate _endDate;
     StockDataCycle _dataCycle;
     QNetworkAccessManager* _manager;
     bool _updating;
+    StockDataBase _dataBaseType;
+
+
+
+
 };
 
 #endif // STOCKPRICE_H

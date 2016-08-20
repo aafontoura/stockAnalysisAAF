@@ -23,16 +23,33 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QAction *actionOpen_Stock;
+    QWidget *mainWidget;
+    //QCustomPlot *customPlot;
+    QTabWidget *tabWidget;
+    QWidget *tab;
+    /*QWidget *tab_2;
+    QMenuBar *menuBar;
+    QMenu *menuFile;
+    QToolBar *mainToolBar;
+    QStatusBar *statusBar;*/
+    QGridLayout *mainGridLayout;
+    QCustomPlot *mainPlot;
+
     StockModel st;
     StockPrice sp;
     AverageAAF* newAverage9;
     AverageAAF* newAverage21;
     dataCrossAnalysis *newAnalysis;
 
+    void setupUi();
+
 private slots:
     void handleDownloadProgress(qint64 a,qint64 b);
     void newData(void);
 
+    void on_actionOpen_Stock_triggered();
+    void on_actionRequest_Web_Stock_triggered();
 };
 
 #endif // MAINWINDOW_H

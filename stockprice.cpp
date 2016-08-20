@@ -9,11 +9,15 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 
+
+#include <QFileDialog>
+
 StockModel::StockModel(QObject *parent)
     : QAbstractListModel(parent)
     , _startDate(QDate(1995, 4, 25))
     , _endDate(QDate::currentDate())
     , _dataCycle(StockModel::Daily)
+    , _dataBaseType(StockModel::LocalCSV)
     , _manager(0)
     , _updating(false)
 {
@@ -36,6 +40,12 @@ StockModel::StockModel(QObject *parent)
     _manager = new QNetworkAccessManager(this);
     connect(_manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(update(QNetworkReply*)));
 
+
+    /*inFile = new QFile(QFileDialog::getOpenFileName());
+    inFile->open(QIODevice::ReadOnly);
+    this->SetupFormatFile(inFile->readLine());*/
+    this->SetupFormatFile();
+
 }
 
 int StockModel::rowCount(const QModelIndex & parent) const {
@@ -53,9 +63,22 @@ StockPrice* StockModel::stockPriceAtIndex(int idx) const
 
 void StockModel::requestData()
 {
-    if (!_updating) {
-        _updating = true;
-        QMetaObject::invokeMethod(this, "doRequest", Qt::QueuedConnection);
+    switch (_dataBaseType)
+    {
+    case StockModel::WebCSV:
+        if (!_updating)
+        {
+            _updating = true;
+            QMetaObject::invokeMethod(this, "doRequest", Qt::QueuedConnection);
+        }
+        break;
+    case StockModel::LocalCSV:
+        inFile = new QFile(this->fileName);
+        inFile->open(QIODevice::ReadOnly);
+        /* checks!!!! */
+        this->SetupFormatFile(inFile->readLine());
+        this->updatePrices(inFile);
+        break;
     }
 }
 
@@ -85,37 +108,36 @@ void StockModel::update(QNetworkReply *reply)
 {
     _updating = false;
 
-    if (reply) {
-         if (reply->error() == QNetworkReply::NoError) {
-            beginResetModel();
+    if (reply)
+    {
+         if (reply->error() == QNetworkReply::NoError)
+         {
+            /*beginResetModel();
 
-            foreach (StockPrice* p, _prices) {
+            foreach (StockPrice* p, _prices)
+            {
                 p->deleteLater();
             }
-
             _prices.clear();
 
-            while (!reply->atEnd()) {
+            while (!reply->atEnd())
+            {
                 QString line = reply->readLine();
                 QStringList fields = line.split(',');
 
                 //data format:Date,Open,High,Low,Close,Volume,Adjusted close price
                 //example: 2011-06-24,6.03,6.04,5.88,5.88,20465200,5.88
-                if (fields.size() == 7) {
-                    StockPrice* price = new StockPrice(this);
-                    price->setDate(QDate::fromString(fields[0], Qt::ISODate));
-                    price->setOpenPrice(fields[1].toFloat());
-                    price->setHighPrice(fields[2].toFloat());
-                    price->setLowPrice(fields[3].toFloat());
-                    price->setClosePrice(fields[4].toFloat());
-                    price->setVolume(fields[5].toInt());
-                    price->setAdjustedPrice(fields[6].toFloat());
-                    _prices.prepend(price);
+                if (fields.size() == StockModel::NUM_OF_ATTRIBUTES)
+                {
+                    _prices.prepend(decodeEntryStock(fields));
                 }
             }
             qDebug() << "get stock data successfully, total:" << _prices.count() << "records.";
-            emit downloadDone();
-         } else {
+            emit downloadDone();*/
+
+            this->updatePrices(reply);
+         } else
+         {
             qDebug() << "get stock data failed:" << reply->errorString();
             emit downloadFail();
          }
@@ -270,10 +292,130 @@ QString StockModel::dataCycleString() const
     return QString('d');
 }
 
+void StockModel::SetupFormatFile(QString header)
+{
+    attributesPosition.resize(StockModel::NUM_OF_ATTRIBUTES);
+    attributesPosition.clear();
+
+    header = header.toLower();
+    QStringList fields = header.split(',');
+
+    attributesPosition.append(fields.indexOf(QRegExp("^data.*")));
+    attributesPosition.append(fields.indexOf(QRegExp("^open.*")));
+    attributesPosition.append(fields.indexOf(QRegExp("^high.*")));
+    attributesPosition.append(fields.indexOf(QRegExp("^low.*")));
+    attributesPosition.append(fields.indexOf(QRegExp("^close.*")));
+    attributesPosition.append(fields.indexOf(QRegExp("^volume.*")));
+    attributesPosition.append(fields.indexOf(QRegExp("^adjusted.*")));
+
+    //SetupFormatFile();
+}
+
+void StockModel::SetupFormatFile()
+{
+    attributesPosition.resize(StockModel::NUM_OF_ATTRIBUTES);
+    attributesPosition.clear();
+    for (int i = 0; i < StockModel::NUM_OF_ATTRIBUTES ; i++)
+    {
+        attributesPosition.append(i);
+    }
+}
+
+void StockModel::updatePrices(QIODevice *inData)
+{
+    beginResetModel();
+
+    foreach (StockPrice* p, _prices)
+    {
+        p->deleteLater();
+    }
+    _prices.clear();
+
+    while (!inData->atEnd())
+    {
+        QString line = inData->readLine();
+        QStringList fields = line.split(',');
+
+        //data format:Date,Open,High,Low,Close,Volume,Adjusted close price
+        //example: 2011-06-24,6.03,6.04,5.88,5.88,20465200,5.88
+        if (fields.size() == StockModel::NUM_OF_ATTRIBUTES)
+        {
+            _prices.prepend(decodeEntryStock(fields));
+        }
+    }
+    qDebug() << "get stock data successfully, total:" << _prices.count() << "records.";
+    emit downloadDone();
+}
+
+StockPrice *StockModel::decodeEntryStock(QStringList &line)
+{
+    StockPrice* price = new StockPrice(this);
+
+    if (-1 < attributesPosition[0])
+    {
+        price->setDate(QDate::fromString(line[attributesPosition[0]], Qt::ISODate));
+    }
+
+    if (-1 < attributesPosition[1])
+    {
+        price->setOpenPrice(line[attributesPosition[1]].toFloat());
+    }
+
+    if (-1 < attributesPosition[2])
+    {
+        price->setHighPrice(line[attributesPosition[2]].toFloat());
+    }
+
+    if (-1 < attributesPosition[3])
+    {
+        price->setLowPrice(line[attributesPosition[3]].toFloat());
+    }
+
+    if (-1 < attributesPosition[4])
+    {
+        price->setClosePrice(line[attributesPosition[4]].toFloat());
+    }
+
+    if (-1 < attributesPosition[5])
+    {
+        price->setVolume(line[attributesPosition[5]].toInt());
+    }
+
+    if (-1 < attributesPosition[6])
+    {
+        price->setAdjustedPrice(line[attributesPosition[6]].toFloat());
+    }
+    else
+    {
+        price->setAdjustedPrice(line[attributesPosition[4]].toFloat());
+    }
+
+    return price;
+}
+
 void StockModel::setDataCycle(StockModel::StockDataCycle cycle)
 {
     if (_dataCycle != cycle) {
         _dataCycle = cycle;
         emit dataCycleChanged();
     }
+}
+
+StockModel::StockDataBase StockModel::dataBaseType() const
+{
+    return _dataBaseType;
+}
+
+void StockModel::setDataBaseType(StockModel::StockDataBase dataBase)
+{
+    if (_dataBaseType != dataBase)
+    {
+        _dataBaseType = dataBase;
+        emit dataBaseTypeChanged();
+    }
+}
+
+void StockModel::setFileName(QString file)
+{
+    this->fileName = file;
 }

@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     filedownload.cpp \
     qcustomplot.cpp \
     stockanalysis.cpp \
-    balanceanalysis.cpp
+    balanceanalysis.cpp \
+    plothandler.cpp
 
 HEADERS  += mainwindow.h \
     AAFAnalysisDefs.h \
@@ -35,6 +36,7 @@ HEADERS  += mainwindow.h \
     filedownload.h \
     qcustomplot.h \
     stockanalysis.h \
-    balanceanalysis.h
+    balanceanalysis.h \
+    plothandler.h
 
 FORMS    += mainwindow.ui
