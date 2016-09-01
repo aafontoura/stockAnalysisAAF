@@ -75,7 +75,7 @@ void StockModel::requestData()
     case StockModel::LocalCSV:
         inFile = new QFile(this->fileName);
         inFile->open(QIODevice::ReadOnly);
-        /* checks!!!! */
+        /* checks missing!!!! */
         this->SetupFormatFile(inFile->readLine());
         this->updatePrices(inFile);
         break;
@@ -230,8 +230,9 @@ QVariant StockModel::data(const QModelIndex & index, int role) const {
     else if (role == StockModel::VolumeRole)
         return price->volume();
     else if (role == StockModel::SectionRole)
-        return price->date().year();
+        return price->date().year();    
     return QVariant();
+
 }
 
 QString StockModel::stockName() const
@@ -418,4 +419,5 @@ void StockModel::setDataBaseType(StockModel::StockDataBase dataBase)
 void StockModel::setFileName(QString file)
 {
     this->fileName = file;
+    this->setStockName(file.split("/").last());
 }

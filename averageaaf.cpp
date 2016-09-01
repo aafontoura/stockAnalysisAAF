@@ -4,6 +4,7 @@
 AverageAAF::AverageAAF()
 {
     values.clear();
+    time.clear();
     this->averageSize = 6;
     buffer.resize(6);
 
@@ -14,6 +15,7 @@ AverageAAF::AverageAAF()
 AverageAAF::AverageAAF(qint32 size)
 {
     values.clear();
+    time.clear();
     this->averageSize = size;
     buffer.resize(size);
 
@@ -70,6 +72,15 @@ QVector<double> AverageAAF::getTimeVector()
 {
     /* Exludes the first elements. For the Average perspective they are not relevant */
     return time.mid(averageSize-1,values.size()-averageSize);
+}
+
+void AverageAAF::clear()
+{
+    values.clear();
+    time.clear();
+
+    indexBuffer = 0;
+    sum = 0;
 }
 
 qreal AverageAAF::getAverageIndex(qint32 index)

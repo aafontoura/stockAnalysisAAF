@@ -24,6 +24,7 @@ public:
     qint32 getLength(void);
     QVector<qreal> getData();
     QVector<double> getTimeVector();
+    void clear();
 
 
 private:

@@ -8,6 +8,10 @@
 #include "datainterface.h"
 #include "balanceanalysis.h"
 #include "qcustomplot.h" // the header file of QCustomPlot. Don't forget to add it to your project, if you use an IDE, so it gets compiled.
+#include "stocksHandler/sitem.h"
+#include "graphichandler.h"
+#include "smodelview.h"
+#include "stocksHandler/sitemtreemodel.h"
 
 namespace Ui {
 class MainWindow;
@@ -35,18 +39,25 @@ private:
     QStatusBar *statusBar;*/
     QGridLayout *mainGridLayout;
     QCustomPlot *mainPlot;
+    GraphicHandler *mainGraph;
+    SModelView *stockModelView;
+
+
+    SItemTreeModel *nModel;
 
     StockModel st;
     StockPrice sp;
     AverageAAF* newAverage9;
     AverageAAF* newAverage21;
     dataCrossAnalysis *newAnalysis;
+//StockModel newStock;
 
     void setupUi();
 
 private slots:
     void handleDownloadProgress(qint64 a,qint64 b);
     void newData(void);
+    void updateGraph(const QModelIndex &index);
 
     void on_actionOpen_Stock_triggered();
     void on_actionRequest_Web_Stock_triggered();

@@ -1,0 +1,6 @@
+#include "sitemdata.h"
+
+ItemData::ItemData()
+{
+
+}

@@ -24,7 +24,16 @@ SOURCES += main.cpp\
     qcustomplot.cpp \
     stockanalysis.cpp \
     balanceanalysis.cpp \
-    plothandler.cpp
+    plothandler.cpp \
+    graphichandler.cpp \
+    smodelview.cpp \
+    stocksHandler/sholder.cpp \
+    stocksHandler/sitem.cpp \
+    stocksHandler/sitemtreemodel.cpp \
+    stocksHandler/sitemdata.cpp \
+    stocksHandler/stockholder.cpp \
+    stocksHandler/indicatorholder.cpp \
+    stocksHandler/strategyholder.cpp
 
 HEADERS  += mainwindow.h \
     AAFAnalysisDefs.h \
@@ -37,6 +46,16 @@ HEADERS  += mainwindow.h \
     qcustomplot.h \
     stockanalysis.h \
     balanceanalysis.h \
-    plothandler.h
+    plothandler.h \
+    graphichandler.h \
+    sholder.h \
+    smodelview.h \
+    stocksHandler/sholder.h \
+    stocksHandler/sitem.h \
+    stocksHandler/sitemtreemodel.h \
+    stocksHandler/sitemdata.h \
+    stocksHandler/stockholder.h \
+    stocksHandler/indicatorholder.h \
+    stocksHandler/strategyholder.h
 
 FORMS    += mainwindow.ui
