@@ -38,6 +38,7 @@ void SItemTreeModel::addItem(SItemData *nItemData, const QModelIndex &parent)
 {
     SItem *nItem = new SItem(nItemData,getItem(parent));
 
+    
     if (!parent.isValid())
     {
         beginInsertRows(parent, rootItem->childCount(), rootItem->childCount()+1);

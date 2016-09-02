@@ -24,7 +24,7 @@ AverageAAF::AverageAAF(qint32 size)
 
 }
 
-void AverageAAF::insertNewValue(qreal newValue)
+void AverageAAF::insertNewValue(double newValue)
 {
     sum -= buffer[indexBuffer];
     buffer[indexBuffer] = newValue;
@@ -37,7 +37,7 @@ void AverageAAF::insertNewValue(qreal newValue)
 
 }
 
-void AverageAAF::insertNewValue(qreal newValue, quint32 timeIn)
+void AverageAAF::insertNewValue(double newValue, quint32 timeIn)
 {
     sum -= buffer[indexBuffer];
     buffer[indexBuffer] = newValue;
@@ -62,7 +62,7 @@ qint32 AverageAAF::getLength(void)
     return values.size();
 }
 
-QVector<qreal> AverageAAF::getData()
+QVector<double> AverageAAF::getData()
 {
     /* Exludes the first elements. For the Average perspective they are not relevant */
     return values.mid(averageSize-1,values.size()-averageSize);
@@ -83,14 +83,14 @@ void AverageAAF::clear()
     sum = 0;
 }
 
-qreal AverageAAF::getAverageIndex(qint32 index)
+double AverageAAF::getAverageIndex(qint32 index)
 {
     if (index<values.size())
         return values[index];
     else
         return 0;
 }
-qreal AverageAAF::getAverageTime(quint32 timeIn)
+double AverageAAF::getAverageTime(quint32 timeIn)
 {
     int i;
     for (i=0;i<values.size() && time.at(i) < timeIn;i++);
@@ -98,12 +98,12 @@ qreal AverageAAF::getAverageTime(quint32 timeIn)
     return values.at(i);
 }
 
-qreal AverageAAF::getValueTime(quint32 time)
+double AverageAAF::getValueTime(quint32 time)
 {
     return getAverageTime(time);
 }
 
-qreal AverageAAF::getValueIndex(qint32 index)
+double AverageAAF::getValueIndex(qint32 index)
 {
     return getAverageIndex(index);
 }

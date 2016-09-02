@@ -20,6 +20,8 @@ SItem::~SItem()
 void SItem::appendChild(SItem *child)
 {
     m_childItems.append(child);
+
+
 }
 
 void SItem::appendChild(SItemData *child)

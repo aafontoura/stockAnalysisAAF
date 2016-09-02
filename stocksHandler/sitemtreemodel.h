@@ -32,7 +32,7 @@ public:
     QModelIndex parent(const QModelIndex &index) const Q_DECL_OVERRIDE;
     int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
-    void addItem(SItem *nItem, const QModelIndex &parent = QModelIndex());
+    void addItem(SItemData *nItemData, const QModelIndex &parent = QModelIndex());
     SItem *getItem(const QModelIndex &index);
     bool insertRow(int row, const QModelIndex &parent = QModelIndex());
 

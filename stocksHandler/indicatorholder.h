@@ -3,13 +3,16 @@
 
 
 #include "sitemdata.h"
+#include "../datainterface.h"
 
 class IndicatorHolder : public SItemData
 {
 public:
     IndicatorHolder();
+    IndicatorHolder(dataInterface *nIndicatorInterface);
 
 private:
+    dataInterface *indicatorInterface;
 };
 
 #endif // INDICATORHOLDER_H

@@ -131,6 +131,11 @@ void SModelView::setStockData(SItem *sData)
 
 }
 
+StockHolder *SModelView::getStockData()
+{
+    return this->displayData;
+}
+
 QCustomPlot *SModelView::getGraphDrawer()
 {
     return this->plotHandler->getPlotHandler();

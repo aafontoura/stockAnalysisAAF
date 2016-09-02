@@ -163,7 +163,6 @@ void MainWindow::on_actionAverage_triggered()
 
     foreach (QModelIndex idx, list)
     {
-
         nModel->addItem((SItemData*)newIndicator,idx);
     }
 

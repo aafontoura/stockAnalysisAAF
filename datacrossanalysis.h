@@ -10,14 +10,14 @@
 class dataCrossAnalysis : StockAnalysis
 {
 public:
-    dataCrossAnalysis(dataInterface<qreal> *newContainerA, dataInterface<qreal> *newContainerB);    
+    dataCrossAnalysis(dataInterface *newContainerA, dataInterface *newContainerB);
     void analyseStock(void);
     QList<transactionOrder*> getTransactionOrderList();
     transactionOrder getLatestTransactionOrder();
 
 private:
-    dataInterface<qreal> *containerA;
-    dataInterface<qreal> *containerB;
+    dataInterface *containerA;
+    dataInterface *containerB;
 
     QList<transactionOrder*> transactionOrderList;
 

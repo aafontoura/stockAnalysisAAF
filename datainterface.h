@@ -3,7 +3,7 @@
 
 #include <QCoreApplication>
 
-template <class T>
+
 class dataInterface
 {
 public:
@@ -14,7 +14,7 @@ public:
     virtual qint32 getDelayOfsset(void) = 0;
     virtual qint32 getLength(void) = 0;
     virtual QVector<double> getTimeVector() = 0;
-    virtual QVector<T> getData() = 0;
+    virtual QVector<double> getData() = 0;
 };
 
 #endif // DATAINTERFACE_H

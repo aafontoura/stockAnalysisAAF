@@ -1,7 +1,7 @@
 #include "datacrossanalysis.h"
 #include <QtCore/QDebug>
 
-dataCrossAnalysis::dataCrossAnalysis(dataInterface<qreal> *newContainerA, dataInterface<qreal> *newContainerB)
+dataCrossAnalysis::dataCrossAnalysis(dataInterface *newContainerA, dataInterface *newContainerB)
 {
     containerA = newContainerA;
     containerB = newContainerB;

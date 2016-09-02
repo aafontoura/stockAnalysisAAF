@@ -13,6 +13,9 @@ public:
     SModelView();
     SModelView(GraphicHandler *plotHandler,SItemData *displayData = 0);
     void setStockData(SItem *sData);
+    StockHolder *getStockData();
+
+
     QCustomPlot *getGraphDrawer();
 
 private:

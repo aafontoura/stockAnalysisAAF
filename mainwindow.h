@@ -44,6 +44,7 @@ private:
 
 
     SItemTreeModel *nModel;
+    QItemSelectionModel *customSelectionModel;
 
     StockModel st;
     StockPrice sp;
@@ -58,9 +59,12 @@ private slots:
     void handleDownloadProgress(qint64 a,qint64 b);
     void newData(void);
     void updateGraph(const QModelIndex &index);
+    void stocksSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void currentSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
 
     void on_actionOpen_Stock_triggered();
     void on_actionRequest_Web_Stock_triggered();
+    void on_actionAverage_triggered();
 };
 
 #endif // MAINWINDOW_H
