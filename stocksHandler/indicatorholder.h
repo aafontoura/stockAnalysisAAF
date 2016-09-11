@@ -10,7 +10,7 @@ class IndicatorHolder : public SItemData
 public:
     IndicatorHolder();
     IndicatorHolder(dataInterface *nIndicatorInterface);
-
+    dataInterface *getData();
 private:
     dataInterface *indicatorInterface;
 };

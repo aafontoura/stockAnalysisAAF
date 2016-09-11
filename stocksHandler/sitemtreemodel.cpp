@@ -36,20 +36,24 @@ int SItemTreeModel::columnCount(const QModelIndex &parent) const
 
 void SItemTreeModel::addItem(SItemData *nItemData, const QModelIndex &parent)
 {
-    SItem *nItem = new SItem(nItemData,getItem(parent));
+
 
     if (!parent.isValid())
     {
+        SItem *nItem = new SItem(nItemData,rootItem);
         beginInsertRows(parent, rootItem->childCount(), rootItem->childCount()+1);
         rootItem->appendChild(nItem);
     }
     else
     {
+        SItem *nItem = new SItem(nItemData,getItem(parent));
+
+        //SItem *changeItem = getStockItem(parent); //static_cast<SItem*>(parent.internalPointer());
+        QModelIndex idx = parent;
+        SItem *changeItem = static_cast<SItem*>(parent.internalPointer());
 
 
-        SItem *changeItem = getItem(parent); //static_cast<SItem*>(parent.internalPointer());
-        beginInsertColumns(parent,changeItem->childCount()+1,changeItem->childCount()+1);
-        //beginInsertRows(parent, 0, 10);
+        beginInsertColumns(idx,changeItem->childCount(),changeItem->childCount());
         changeItem->appendChild(nItem);
     }
     //parent.internalPointer()
@@ -69,6 +73,35 @@ SItem *SItemTreeModel::getItem(const QModelIndex &index)
     return item;
 
 
+
+}
+
+SItem *SItemTreeModel::getStockItem(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return NULL;
+
+
+    SItem *item = static_cast<SItem*>(index.internalPointer());
+    switch (item->getData()->getType())
+    {
+    case SItemData::Stock:
+        break;
+    case SItemData::Index:
+        item = item->parentItem();
+        break;
+    case SItemData::Indicator:
+        item = item->parentItem();
+        break;
+    case SItemData::Strategy:
+        item = item->parentItem();
+        break;
+    case SItemData::Root:
+        item = NULL;
+        break;
+    }
+
+    return item;
 
 }
 
@@ -151,6 +184,8 @@ QModelIndex SItemTreeModel::parent(const QModelIndex &index) const
 
     if ((parentItem == rootItem)||(NULL == parentItem))
         return QModelIndex();
+
+
 
     return createIndex(parentItem->row(), 0, parentItem);
 }

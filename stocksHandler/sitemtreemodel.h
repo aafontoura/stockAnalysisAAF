@@ -34,6 +34,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     void addItem(SItemData *nItemData, const QModelIndex &parent = QModelIndex());
     SItem *getItem(const QModelIndex &index);
+    SItem *getStockItem(const QModelIndex &index);
     bool insertRow(int row, const QModelIndex &parent = QModelIndex());
 
 private:

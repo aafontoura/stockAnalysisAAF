@@ -1,4 +1,8 @@
 #include "smodelview.h"
+// Deletar linha
+#include "stocksHandler/indicatorholder.h"
+
+
 
 SModelView::SModelView()
 {
@@ -23,30 +27,44 @@ void SModelView::setStockData(SItem *sData)
     if (SItemData::Stock == sData->getData()->getType())
     {
         this->displayData = static_cast<StockHolder*>(sData->getData());
+        data.clear();
+
+        for (int i = 0 ; i< sData->childCount();i++)
+            data.append(static_cast<IndicatorHolder*>(sData->child(i)->getData())->getData());
 
         if (NULL != plotHandler)
         {
             StockModel *currentModel = displayData->getSTTemp();
-            QVector<qreal> x,original,rawClose;
-            QDateTime start = QDateTime(QDate(2014, 6, 11));
-            start.setTimeSpec(Qt::UTC);
+            QVector<qreal> x,original;
+
+
+            /* General config */
             double startTime = currentModel->data(0,(int)StockModel::DateRole).toDateTime().toTime_t();
-            double day = 24;
-            double binSize = 60*60*day; // bin data in 1 day intervals
+            //double day = 24;
+            double binSize = C_ONE_DAY_T; // bin data in 1 day intervals
+
+            /* Clear previous graph */
             plotHandler->getPlotHandler()->clearPlottables();
+
+            /* Graph look settings */
             plotHandler->getPlotHandler()->setBackground(Qt::black);
             QPen pen;
             pen.setStyle(Qt::DashLine);
             pen.setWidth(1);
             pen.setColor(Qt::yellow);
 
-            //plotHandler->getPlotHandler()->graph(1)->setBrush(QBrush(QColor(255,50,30,20)));
-
-            QVector<double> adjustedPrice,timeAdjusted;
+            /* add additional graphs */
+            for(int i = 0 ; i < data.count(); i++)
+            {
+                plotHandler->getPlotHandler()->addGraph();
+                plotHandler->getPlotHandler()->graph(i)->setData(data[i]->getTimeVectorAdjusted(binSize),data[i]->getData());
+                plotHandler->getPlotHandler()->graph(i)->setName(sData->child(i)->getData()->getName());
+            }
 
             for (int i = 0; i<currentModel->rowCount()-1;i++)
             {
-                double currentTime = currentModel->data(i,(int)StockModel::DateRole).toDateTime().toTime_t();
+                //double currentTime = currentModel->data(i,(int)StockModel::DateRole).toDateTime().toTime_t();
+                double currentTime = startTime + binSize*i;
 
                 //x.append(i*binSize);
                 x.append(currentTime);
@@ -57,19 +75,16 @@ void SModelView::setStockData(SItem *sData)
                 original.append(currentModel->data(i,(int)StockModel::HighPriceRole).toFloat());
                 x.append(x[x.size()-1]+6*60);
                 original.append(currentModel->data(i,(int)StockModel::ClosePriceRole).toFloat());
-                rawClose.append(currentModel->data(i,(int)StockModel::ClosePriceRole).toFloat());
-
-
-
             }
 
             QCPFinancial *candlesticks = new QCPFinancial(plotHandler->getPlotHandler()->xAxis, plotHandler->getPlotHandler()->yAxis);
+
             plotHandler->getPlotHandler()->addPlottable(candlesticks);
             QCPFinancialDataMap data1 = QCPFinancial::timeSeriesToOhlc(x, original, binSize,startTime);//24*60);
-            candlesticks->setName("Candlestick");
+            candlesticks->setName(currentModel->stockName());
             candlesticks->setChartStyle(QCPFinancial::csCandlestick);
             candlesticks->setData(&data1, true);
-            candlesticks->setWidth(binSize);
+            candlesticks->setWidth(binSize*0.9);
             candlesticks->setTwoColored(true);
             candlesticks->setBrushPositive(QColor(0, 245, 0));
             candlesticks->setBrushNegative(QColor(245, 0, 0));

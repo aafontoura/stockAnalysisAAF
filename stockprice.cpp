@@ -76,7 +76,7 @@ void StockModel::requestData()
         inFile = new QFile(this->fileName);
         inFile->open(QIODevice::ReadOnly);
         /* checks missing!!!! */
-        this->SetupFormatFile(inFile->readLine());
+        //this->SetupFormatFile(inFile->readLine());
         this->updatePrices(inFile);
         break;
     }
@@ -301,13 +301,13 @@ void StockModel::SetupFormatFile(QString header)
     header = header.toLower();
     QStringList fields = header.split(',');
 
-    attributesPosition.append(fields.indexOf(QRegExp("^data.*")));
+    attributesPosition.append(fields.indexOf(QRegExp("^dat.*")));
     attributesPosition.append(fields.indexOf(QRegExp("^open.*")));
     attributesPosition.append(fields.indexOf(QRegExp("^high.*")));
     attributesPosition.append(fields.indexOf(QRegExp("^low.*")));
     attributesPosition.append(fields.indexOf(QRegExp("^close.*")));
     attributesPosition.append(fields.indexOf(QRegExp("^volume.*")));
-    attributesPosition.append(fields.indexOf(QRegExp("^adjusted.*")));
+    attributesPosition.append(fields.indexOf(QRegExp("^adj.*")));
 
     //SetupFormatFile();
 }
@@ -332,6 +332,11 @@ void StockModel::updatePrices(QIODevice *inData)
     }
     _prices.clear();
 
+    if (!inData->atEnd())
+    {
+        this->SetupFormatFile(inData->readLine());
+    }
+
     while (!inData->atEnd())
     {
         QString line = inData->readLine();
@@ -341,7 +346,20 @@ void StockModel::updatePrices(QIODevice *inData)
         //example: 2011-06-24,6.03,6.04,5.88,5.88,20465200,5.88
         if (fields.size() == StockModel::NUM_OF_ATTRIBUTES)
         {
-            _prices.prepend(decodeEntryStock(fields));
+            StockPrice *newItem = decodeEntryStock(fields);
+
+            if (_prices.isEmpty() || (newItem->date() > _prices.last()->date()))
+            {
+                _prices.append(newItem);
+            }
+            else if (newItem->date() < _prices.first()->date())
+            {
+                _prices.prepend(newItem);
+            }
+            else
+            {
+                // TBD insert in the midle of the vector
+            }
         }
     }
     qDebug() << "get stock data successfully, total:" << _prices.count() << "records.";

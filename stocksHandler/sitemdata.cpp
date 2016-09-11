@@ -6,6 +6,11 @@ SItemData::SItemData()
     type = SItemDataType::Root;
 }
 
+SItemData::SItemData(const SItemData &myItemData)
+{
+    *this = myItemData;
+}
+
 QString SItemData::getName()
 {
     return name;

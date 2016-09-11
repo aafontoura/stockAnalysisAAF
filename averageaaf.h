@@ -6,7 +6,7 @@
 #include <QVector>
 #include <algorithm>
 
-class AverageAAF : dataInterface
+class AverageAAF : public dataInterface
 {
 
 
@@ -14,16 +14,23 @@ public:
     AverageAAF();
     AverageAAF(qint32 size);
 
+    qreal getValueIndex(qint32 index);
+    qreal getValueTime(quint32 time);
+    qint32 getDelayOfsset(void);
+    qint32 getLength(void);
+    QVector<double> getData();
+    void addItem(qreal item, quint32 timeIn);
+    void addItem(qreal item);
+
+    QVector<double> getTimeVector();
+    QVector<double> getTimeVectorAdjusted(unsigned int delta);
+
+
     void insertNewValue(double newValue);
     void insertNewValue(double newValue, quint32 timeIn);
     double getAverageIndex(qint32 index);
     double getAverageTime(quint32 timeIn);
-    double getValueIndex(qint32 index);
-    double getValueTime(quint32 time);
-    qint32 getDelayOfsset(void);
-    qint32 getLength(void);
-    QVector<double> getData();
-    QVector<double> getTimeVector();
+
     void clear();
 
 

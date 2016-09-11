@@ -1,4 +1,8 @@
 #include "sitem.h"
+#include "stockprice.h"
+#include "stockholder.h"
+#include "indicatorholder.h"
+#include "datainterface.h"
 
 SItem ::SItem(SItemData *data, SItem *parentItem)
 {
@@ -19,6 +23,20 @@ SItem::~SItem()
 
 void SItem::appendChild(SItem *child)
 {
+    if (this->m_itemData->getType()==SItemData::Stock)
+    {
+        if(child->getData()->getType()==SItemData::Indicator)
+        {
+            StockModel *st = (static_cast<StockHolder*>(m_itemData)->getSTTemp());
+            dataInterface *indicator = static_cast<IndicatorHolder*>(child->getData())->getData();
+            for(int i = 0; i < st->rowCount() ; i++)
+            {
+
+                indicator->addItem(st->data(i,StockModel::ClosePriceRole).toDouble(),st->data(i,StockModel::DateRole).toDateTime().toTime_t());
+            }
+        }
+    }
+
     m_childItems.append(child);
 
 
@@ -58,8 +76,10 @@ SItemData *SItem::getData()
 int SItem::row() const
 {
     if (m_parentItem)
-        return m_parentItem->m_childItems.indexOf(const_cast<SItem*>(this));
-
+    {
+        int row = m_parentItem->m_childItems.indexOf(const_cast<SItem*>(this));
+        return row;
+    }
     return 0;
 }
 

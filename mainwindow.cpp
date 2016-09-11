@@ -156,16 +156,29 @@ void MainWindow::on_actionRequest_Web_Stock_triggered()
 
 void MainWindow::on_actionAverage_triggered()
 {
-    AverageAAF *newAverage = new AverageAAF(9);
+    dataInterface *newAverage = new AverageAAF(9);
 
-    IndicatorHolder *newIndicator = new IndicatorHolder((dataInterface*)newAverage);
     QModelIndexList list = customSelectionModel->selectedIndexes();
 
+    QModelIndexList stocksIdx;
     foreach (QModelIndex idx, list)
     {
+        QModelIndex newIdx = idx;
 
-        nModel->addItem((SItemData*)newIndicator,idx);
+        if (SItemData::Stock != static_cast<SItem*>(idx.internalPointer())->getData()->getType())
+        {
+            QModelIndex temp = idx.parent();
+            newIdx = temp;
+        }
+
+        if (!stocksIdx.contains(newIdx))
+            stocksIdx.append(newIdx);
     }
 
+    foreach (QModelIndex idx, stocksIdx)
+    {
+        nModel->addItem(static_cast<SItemData*>((new IndicatorHolder(newAverage))),idx);
+    }
+    //delete(newIndicator);
 
 }

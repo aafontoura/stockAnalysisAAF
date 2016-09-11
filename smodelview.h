@@ -6,6 +6,8 @@
 //#include "stocksHandler/sitemdata.h"
 #include "stocksHandler/sitem.h"
 #include "stocksHandler/stockholder.h"
+#include "QList"
+#include "datainterface.h"
 
 class SModelView
 {
@@ -18,9 +20,12 @@ public:
 
     QCustomPlot *getGraphDrawer();
 
+    const uint C_ONE_DAY_T = 60*60*24;
+
 private:
     GraphicHandler *plotHandler;
     StockHolder *displayData;
+    QList<dataInterface*> data;
 
 };
 

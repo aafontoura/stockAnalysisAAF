@@ -18,8 +18,10 @@ public:
     };
 
     SItemData();
+    SItemData(const SItemData &myItemData);
     QString getName();
     SItemDataType getType();
+
 protected:
     void setName(QString newName);
     void setType(SItemDataType newType);
