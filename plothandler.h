@@ -4,11 +4,19 @@
 #include "qcustomplot.h"
 
 
-class PlotHandler
+class PlotHandler : public QObject
 {
+    Q_OBJECT
+
 public:
     PlotHandler(QCustomPlot *plotter);
     void setPlotter(QCustomPlot *plotter);
+
+public slots:
+    void zoomChanged();
+
+signals:
+    void zoomHasChanged();
 
 private:
 

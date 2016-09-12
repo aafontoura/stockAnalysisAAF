@@ -20,6 +20,8 @@ SModelView::SModelView(GraphicHandler *plotHandler, SItemData *displayData)
         this->displayData = static_cast<StockHolder*>(displayData);
     }
 
+    connect (this->plotHandler,SIGNAL(zoomHasChanged()),this,SLOT(zoomChanged()));
+
 }
 
 void SModelView::setStockData(SItem *sData)
@@ -36,6 +38,9 @@ void SModelView::setStockData(SItem *sData)
         {
             StockModel *currentModel = displayData->getSTTemp();
             QVector<qreal> x,original;
+
+            axisVector.clear();
+            axisVectorLabel.clear();
 
 
             /* General config */
@@ -61,6 +66,7 @@ void SModelView::setStockData(SItem *sData)
                 plotHandler->getPlotHandler()->graph(i)->setName(sData->child(i)->getData()->getName());
             }
 
+
             for (int i = 0; i<currentModel->rowCount()-1;i++)
             {
                 //double currentTime = currentModel->data(i,(int)StockModel::DateRole).toDateTime().toTime_t();
@@ -75,7 +81,18 @@ void SModelView::setStockData(SItem *sData)
                 original.append(currentModel->data(i,(int)StockModel::HighPriceRole).toFloat());
                 x.append(x[x.size()-1]+6*60);
                 original.append(currentModel->data(i,(int)StockModel::ClosePriceRole).toFloat());
+
+
+
+                    axisVector.append(currentTime);
+                    QDateTime dt;
+                    dt.setTime_t(currentModel->data(i,(int)StockModel::DateRole).toDateTime().toTime_t());
+                    axisVectorLabel.append(dt.toString("MMM dd\n yy"));
+                   // axisVectorLabel.append("str - "+i);
+
             }
+
+
 
             QCPFinancial *candlesticks = new QCPFinancial(plotHandler->getPlotHandler()->xAxis, plotHandler->getPlotHandler()->yAxis);
 
@@ -105,7 +122,10 @@ void SModelView::setStockData(SItem *sData)
             plotHandler->getPlotHandler()->xAxis->setTickLabelFont(QFont(QFont().family(), 8));
             plotHandler->getPlotHandler()->yAxis->setTickLabelFont(QFont(QFont().family(), 8));
             // set a fixed tick-step to one tick per month:
-            plotHandler->getPlotHandler()->xAxis->setAutoTickStep(true);
+            plotHandler->getPlotHandler()->xAxis->setAutoTickStep(false);
+            plotHandler->getPlotHandler()->xAxis->setAutoTicks(false);
+            plotHandler->getPlotHandler()->xAxis->setAutoTickLabels(false);
+
             //plotHandler->getPlotHandler()->xAxis->setTickStep(2628000); // one month in seconds
             plotHandler->getPlotHandler()->xAxis->setSubTickCount(3);
             plotHandler->getPlotHandler()->xAxis->setTickPen(QPen(QColor(Qt::white)));
@@ -136,6 +156,10 @@ void SModelView::setStockData(SItem *sData)
             // show legend:
             plotHandler->getPlotHandler()->legend->setVisible(true);
 
+            //plotHandler->getPlotHandler()->xAxis->setTickVector(axisVector);
+            //plotHandler->getPlotHandler()->xAxis->setTickVectorLabels(axisVectorLabel);
+
+            zoomChanged();
 
 
             plotHandler->getPlotHandler()->rescaleAxes();
@@ -154,5 +178,45 @@ StockHolder *SModelView::getStockData()
 QCustomPlot *SModelView::getGraphDrawer()
 {
     return this->plotHandler->getPlotHandler();
+
+}
+
+void SModelView::zoomChanged()
+{
+
+    //Determine how many labels could fit on the plot(my labels are ~54 pixels wide)
+    int numberOfLabels = plotHandler->getPlotHandler()->axisRect()->width() / 100;
+
+    //Determine your viewing window
+    int window = plotHandler->getPlotHandler()->xAxis->range().size()/numberOfLabels;
+    QVector<double> customAxis;
+    QVector<QString> customAxisLabel;
+
+    if (plotHandler->getPlotHandler()->xAxis->range().lower < axisVector.last())
+    {
+        double rangeLower = plotHandler->getPlotHandler()->xAxis->range().lower;
+        double rangeUpper = plotHandler->getPlotHandler()->xAxis->range().upper;
+
+        int lower = 0;
+        for (;lower<axisVector.size() && axisVector[lower] < rangeLower;lower++);
+
+        int upper = lower;
+        for (;upper<axisVector.size() && axisVector[upper] < rangeUpper;upper++);
+
+        window = (upper-lower)/numberOfLabels;
+        window = 0==window ? 1 : window;
+
+        for (int i = lower; i < upper; i+=window)
+        {
+            customAxis.append(axisVector[i]);
+            customAxisLabel.append(axisVectorLabel[i]);
+
+        }
+
+        plotHandler->getPlotHandler()->xAxis->setTickVector(customAxis);
+        plotHandler->getPlotHandler()->xAxis->setTickVectorLabels(customAxisLabel);
+    }
+
+
 
 }

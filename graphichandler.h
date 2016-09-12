@@ -3,13 +3,22 @@
 
 #include "qcustomplot.h"
 
-class GraphicHandler
+class GraphicHandler : public QObject
 {
+    Q_OBJECT
+
 public:
     GraphicHandler();
     QCustomPlot *getPlotHandler();
 private:
     QCustomPlot *gHandler;
+
+public slots:
+    void zoomChanged();
+
+signals:
+    void zoomHasChanged();
+
 
 };
 
